@@ -20,6 +20,9 @@ class DBHelper {
   static String COLUMN_TODO_TITLE = "t_title";
   static String COLUMN_TODO_REMARK = "t_remark";
   static String COLUMN_TODO_IS_COMPLETED = "t_is_completed";
+  static String COLUMN_TODO_PRIORITY = "t_priority";
+
+  ///0-> low, 1-> medium, 2-> high
   static String COLUMN_TODO_CREATED_AT = "t_created_at";
 
   Future<Database> initDB() async {
@@ -36,7 +39,7 @@ class DBHelper {
       version: 1,
       onCreate: (db, version) {
         db.execute(
-          "create table $TABLE_TODO ( $COLUMN_TODO_ID integer primary key autoincrement, $COLUMN_TODO_TITLE text, $COLUMN_TODO_REMARK text, $COLUMN_TODO_IS_COMPLETED integer, $COLUMN_TODO_CREATED_AT text )",
+          "create table $TABLE_TODO ( $COLUMN_TODO_ID integer primary key autoincrement, $COLUMN_TODO_TITLE text, $COLUMN_TODO_REMARK text, $COLUMN_TODO_IS_COMPLETED integer,$COLUMN_TODO_PRIORITY integer, $COLUMN_TODO_CREATED_AT text )",
         );
       },
     );
@@ -50,11 +53,20 @@ class DBHelper {
     return rowsEffected > 0;
   }
 
-  Future<List<TodoModel>> fetchAllTodo() async {
+  Future<List<TodoModel>> fetchAllTodo({int filterValue = 3}) async {
     var db = await initDB();
     List<TodoModel> mTodo = [];
+    List<Map<String, dynamic>> mData = [];
 
-    List<Map<String, dynamic>> mData = await db.query(TABLE_TODO);
+    if (filterValue < 3) {
+      mData = await db.query(
+        TABLE_TODO,
+        where: "$COLUMN_TODO_PRIORITY = ?",
+        whereArgs: ["$filterValue"],
+      );
+    } else {
+      mData = await db.query(TABLE_TODO);
+    }
 
     for (Map<String, dynamic> eachItem in mData) {
       mTodo.add(TodoModel.fromMap(eachItem));
@@ -73,6 +85,28 @@ class DBHelper {
       whereArgs: ["$id"],
     );
 
-    return rowsEffected>0;
+    return rowsEffected > 0;
+  }
+
+  Future<bool> updateTodo({
+    required String title,
+    required String remark,
+    required int id,
+    required int priority,
+  }) async {
+    var db = await initDB();
+
+    int rowsEffected = await db.update(
+      TABLE_TODO,
+      {
+        COLUMN_TODO_TITLE: title,
+        COLUMN_TODO_REMARK: remark,
+        COLUMN_TODO_PRIORITY: priority,
+      },
+      where: "$COLUMN_TODO_ID = ?",
+      whereArgs: ["$id"],
+    );
+
+    return rowsEffected > 0;
   }
 }

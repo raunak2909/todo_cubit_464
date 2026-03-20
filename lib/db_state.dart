@@ -1,6 +1,14 @@
 import 'package:todo_cubit_464/todo_model.dart';
 
-class DBState{
+abstract class DBState{}
+
+class DBInitialState extends DBState{}
+class DBLoadingState extends DBState{}
+class DBLoadedState extends DBState{
   List<TodoModel> mTodo;
-  DBState({required this.mTodo});
+  DBLoadedState({required this.mTodo});
+}
+class DBErrorState extends DBState{
+  String errorMsg;
+  DBErrorState({required this.errorMsg});
 }

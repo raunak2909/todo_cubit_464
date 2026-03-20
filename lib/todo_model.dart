@@ -5,6 +5,7 @@ class TodoModel {
   String tTitle;
   String tRemark;
   bool tIsCompleted;
+  int tPriority; ///0-> low, 1-> medium, 2-> high
   int tCreatedAt;
 
   TodoModel({
@@ -12,12 +13,14 @@ class TodoModel {
     required this.tTitle,
     required this.tRemark,
     required this.tIsCompleted,
+    required this.tPriority,
     required this.tCreatedAt,
   });
 
   ///fromMap (Database -> Map -> Model -> UI)
   factory TodoModel.fromMap(Map<String, dynamic> map) {
     return TodoModel(
+      tPriority: map[DBHelper.COLUMN_TODO_PRIORITY],
       tid: map[DBHelper.COLUMN_TODO_ID],
       tTitle: map[DBHelper.COLUMN_TODO_TITLE],
       tRemark: map[DBHelper.COLUMN_TODO_REMARK],
@@ -29,6 +32,7 @@ class TodoModel {
   ///toMap (UI -> Model -> Map -> Database)
   Map<String, dynamic> toMap(){
     return {
+      DBHelper.COLUMN_TODO_PRIORITY : tPriority,
       DBHelper.COLUMN_TODO_TITLE : tTitle,
       DBHelper.COLUMN_TODO_REMARK : tRemark,
       DBHelper.COLUMN_TODO_IS_COMPLETED : tIsCompleted ? 1 : 0,
